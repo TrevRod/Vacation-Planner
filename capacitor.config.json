@@ -1,0 +1,9 @@
+{
+  "appId": "com.vacationplanner.app",
+  "appName": "Vacation Planner",
+  "webDir": "dist",
+  "server": {
+    "url": "https://your-custom-domain.com",
+    "cleartext": true
+  }
+}

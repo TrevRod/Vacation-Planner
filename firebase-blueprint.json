@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "users": {
+      "fields": {
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" }
+      }
+    },
+    "trips": {
+      "path": "users/{userId}/trips/{tripId}",
+      "fields": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "destination": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "currency": { "type": "string" },
+        "currencySymbol": { "type": "string" },
+        "budgetTotal": { "type": "number" },
+        "coverGradient": { "type": "string" },
+        "generalNotes": { "type": "string" },
+        "itinerary": { "type": "array" },
+        "todos": { "type": "array" },
+        "packingList": { "type": "array" },
+        "expenses": { "type": "array" },
+        "emergencyInfo": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "security_rules": {
+    "users": {
+      "read": "request.auth != null && request.auth.uid == userId",
+      "write": "request.auth != null && request.auth.uid == userId"
+    },
+    "trips": {
+      "read": "request.auth != null && request.auth.uid == userId",
+      "write": "request.auth != null && request.auth.uid == userId"
+    }
+  }
+}

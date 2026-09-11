@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Trip } from '../types';
 import { calculateDaysUntil, formatTripDates } from '../utils/storage';
+import { UserAuthButton } from './UserAuthButton';
 
 interface HeaderProps {
   trips: Trip[];
@@ -22,6 +23,7 @@ interface HeaderProps {
   onEditTrip: () => void;
   onOpenExport: () => void;
   onOpenTripsManager?: () => void;
+  onOpenAuth: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -31,7 +33,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNewTrip,
   onEditTrip,
   onOpenExport,
-  onOpenTripsManager
+  onOpenTripsManager,
+  onOpenAuth
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const daysInfo = calculateDaysUntil(activeTrip.startDate);
@@ -163,6 +166,9 @@ export const Header: React.FC<HeaderProps> = ({
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Vacation</span>
             </button>
+
+            {/* User Account / Login Button */}
+            <UserAuthButton onOpenAuth={onOpenAuth} tripsCount={trips.length} />
           </div>
         </div>
 
