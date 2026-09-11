@@ -1,0 +1,65 @@
+name: Build Mobile Apps
+on:
+  push:
+    branches: [ main ] # Runs automatically every time you push code
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          
+      - name: Initialize Capacitor Android
+        run: |
+          npx cap sync
+          npx cap add android || true
+          npx cap copy android
+          
+      - name: Build Android APK
+        run: |
+          cd android && ./gradlew assembleDebug
+          
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  build-ios:
+    runs-on: macos-latest # GitHub provides free Mac environments to build iOS code!
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/ios
+          
+      - name: Initialize Capacitor iOS
+        run: |
+          npx cap sync
+          npx cap add ios || true
+          npx cap copy ios
+          
+      - name: Build iOS App Bundle
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphoneos -configuration Debug CODE_SIGNING_ALLOWED=NO
+          
+      - name: Upload iOS App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-debug-app
+          path: ios/App/build/Release-iphoneos/App.app
+
