@@ -7,7 +7,6 @@ import {
   Share2, 
   Edit3, 
   ChevronDown, 
-  RotateCcw,
   Sparkles,
   Plane,
   Globe
@@ -22,7 +21,6 @@ interface HeaderProps {
   onNewTrip: () => void;
   onEditTrip: () => void;
   onOpenExport: () => void;
-  onResetDemo: () => void;
   onOpenTripsManager?: () => void;
 }
 
@@ -33,7 +31,6 @@ export const Header: React.FC<HeaderProps> = ({
   onNewTrip,
   onEditTrip,
   onOpenExport,
-  onResetDemo,
   onOpenTripsManager
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -139,20 +136,6 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         <Plus className="w-4 h-4" />
                         Plan New Vacation
-                      </button>
-                      <button
-                        id="dropdown-reset-demo-btn"
-                        type="button"
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          if (window.confirm('Reset to sample vacation trips? Custom changes will be restored to initial sample trips.')) {
-                            onResetDemo();
-                          }
-                        }}
-                        className="w-full text-left px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-50 flex items-center gap-2 transition cursor-pointer"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        Reload Sample Trips
                       </button>
                     </div>
                   </div>

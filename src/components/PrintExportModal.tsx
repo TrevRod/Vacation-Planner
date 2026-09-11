@@ -6,7 +6,7 @@ import { formatCurrency, formatTripDates } from '../utils/storage';
 interface PrintExportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  trip: Trip;
+  trip?: Trip | null;
   onImportTrip: (importedTrip: Trip) => void;
 }
 
@@ -23,6 +23,7 @@ export const PrintExportModal: React.FC<PrintExportModalProps> = ({
 
   // Generate plain text summary for companion sharing / WhatsApp
   const generateTextSummary = (): string => {
+    if (!trip) return 'No vacation data to export.';
     const dates = formatTripDates(trip.startDate, trip.endDate);
     let out = `✈️ VACATION PLAN: ${trip.title.toUpperCase()}\n`;
     out += `📍 Destination: ${trip.destination}\n`;
@@ -85,6 +86,7 @@ export const PrintExportModal: React.FC<PrintExportModalProps> = ({
   };
 
   const handleDownloadJson = () => {
+    if (!trip) return;
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(trip, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);

@@ -8,17 +8,23 @@ export function loadTrips(): Trip[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_TRIPS));
-      return INITIAL_TRIPS;
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    if (Array.isArray(parsed)) {
+      // Remove any pre-existing sample trips from localStorage
+      const userTrips = parsed.filter(
+        (t) => t && t.id !== 'trip-amalfi-2026' && t.id !== 'trip-japan-2026'
+      );
+      if (userTrips.length !== parsed.length) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(userTrips));
+      }
+      return userTrips;
     }
-    return INITIAL_TRIPS;
+    return [];
   } catch (err) {
     console.error('Error loading trips from localStorage:', err);
-    return INITIAL_TRIPS;
+    return [];
   }
 }
 
