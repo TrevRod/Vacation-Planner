@@ -1,0 +1,6 @@
+{
+  "name": "Vacation Planner",
+  "description": "Plan vacations with day-by-day itineraries, pre-trip to-do checklists, categorized packing lists, and travel budget tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
