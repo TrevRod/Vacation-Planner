@@ -17,14 +17,12 @@ jobs:
           npm install --legacy-peer-deps || npm install
           npm install @capacitor/core @capacitor/cli @capacitor/android
           
-      - name: Fix Missing Web Dir
-        run: mkdir -p out dist public && touch out/index.html dist/index.html public/index.html
-          
-      - name: Initialize Capacitor Android
+      - name: Create Web Placeholder & Initialize Android
         run: |
-          npx cap sync android || true
+          mkdir -p out dist public && touch out/index.html dist/index.html public/index.html
+          npx cap init MyAIStudioApp com.yourname.myapp --web-dir=out --skip-user-prompts || true
           npx cap add android || true
-          npx cap copy android
+          npx cap sync android
           
       - name: Build Android APK
         run: |
@@ -44,27 +42,32 @@ jobs:
         with:
           node-version: 20
           
-      - name: Install Dependencies
+      - name: Install Dependencies & CocoaPods
         run: |
           npm install --legacy-peer-deps || npm install
           npm install @capacitor/core @capacitor/cli @capacitor/ios
+          sudo gem install cocoapods || true
           
-      - name: Fix Missing Web Dir
-        run: mkdir -p out dist public && touch out/index.html dist/index.html public/index.html
-          
-      - name: Initialize Capacitor iOS
+      - name: Create Web Placeholder & Initialize iOS
         run: |
-          npx cap sync ios || true
+          mkdir -p out dist public && touch out/index.html dist/index.html public/index.html
+          npx cap init MyAIStudioApp com.yourname.myapp --web-dir=out --skip-user-prompts || true
           npx cap add ios || true
-          npx cap copy ios
+          npx cap sync ios
           
-      - name: Build iOS App Bundle
+      - name: Build iOS App for Simulator (Skips Provisioning)
         run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          pod install
+          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug -derivedDataPath ./build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          
+      - name: Zip and Compress iOS App Bundle
+        run: |
+          cd ios/App/build/Build/Products/Debug-iphonesimulator
+          zip -r ../../../../MyAIStudioApp.zip App.app
           
       - name: Upload iOS App Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-debug-app
-          path: ios/App/build/Release-iphonesimulator/App.app
+          path: MyAIStudioApp.zip
