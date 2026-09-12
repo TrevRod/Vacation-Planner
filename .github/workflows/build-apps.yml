@@ -2,6 +2,7 @@ name: Build Mobile Apps
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-android:
@@ -12,6 +13,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
           
       - name: Setup Bun Environment
         uses: oven-sh/setup-bun@v2
@@ -23,26 +30,22 @@ jobs:
           bun install
           bun run build
           
-      - name: Install Platform Engines
-        run: |
-          bun add @capacitor/core @capacitor/cli @capacitor/android
-          
       - name: Build Standalone Android Project
         run: |
-          # Programmatically initialize capacitor config if missing
-          npx cap init MyAIStudioApp com.yourname.myapp --web-dir=dist --skip-user-prompts || true
           npx cap add android || true
           npx cap sync android
           
       - name: Compile Native Android APK
         run: |
-          cd android && ./gradlew assembleDebug
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
           
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
 
   build-ios:
     runs-on: macos-latest
@@ -63,28 +66,38 @@ jobs:
           bun install
           bun run build
           
-      - name: Install Platform Engines & CocoaPods
+      - name: Initialize iOS Platform
         run: |
-          bun add @capacitor/core @capacitor/cli @capacitor/ios
-          sudo gem install cocoapods || true
-          
-      - name: Force Create iOS Project
-        run: |
-          # Explicitly initialize workspace details so add ios actually runs
-          npx cap init MyAIStudioApp com.yourname.myapp --web-dir=dist --skip-user-prompts || true
-          npx cap add ios
+          npx cap add ios || true
           npx cap sync ios
           
       - name: Compile Native iOS Application
         run: |
           cd ios/App
-          pod install
-          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug -derivedDataPath ./build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          # Capacitor 8 uses Swift Package Manager (SPM) by default instead of CocoaPods.
+          # Only run pod install if a legacy Podfile actually exists.
+          if [ -f "Podfile" ]; then
+            pod install
+          fi
+          
+          # Target workspace if available, otherwise project
+          if [ -d "App.xcworkspace" ]; then
+            TARGET_ARG="-workspace App.xcworkspace"
+          else
+            TARGET_ARG="-project App.xcodeproj"
+          fi
+          
+          xcodebuild $TARGET_ARG -scheme App -sdk iphonesimulator -configuration Debug -derivedDataPath ./build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           
       - name: Compress iOS Artifact
         run: |
-          cd ios/App/build/Build/Products/Debug-iphonesimulator
-          zip -r ../../../../MyAIStudioApp.zip App.app
+          cd ios/App
+          APP_PATH=$(find ./build -name "App.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            APP_PATH=$(find ./build -name "*.app" -type d | head -n 1)
+          fi
+          echo "Found app at: $APP_PATH"
+          zip -r ../../MyAIStudioApp.zip "$APP_PATH"
           
       - name: Upload iOS App Bundle
         uses: actions/upload-artifact@v4
