@@ -11,22 +11,23 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # Updated to match Capacitor CLI requirements
           
       - name: Setup Bun Environment
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
           
-      - name: Install Dependencies & Build Web Assets
+      - name: Install Project Dependencies
         run: |
           bun install
           bun run build
           
-      - name: Install Platform Dependencies
-        run: bun add @capacitor/core @capacitor/cli @capacitor/android
+      - name: Install Platform Engines
+        run: |
+          bun add @capacitor/core @capacitor/cli @capacitor/android
           
-      - name: Build Standalone Workspace
+      - name: Build Standalone Android Project
         run: |
           npx cap add android || true
           npx cap sync android
@@ -48,24 +49,24 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # Updated to match Capacitor CLI requirements
           
       - name: Setup Bun Environment
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
           
-      - name: Install Dependencies & Build Web Assets
+      - name: Install Project Dependencies
         run: |
           bun install
           bun run build
           
-      - name: Install Platform Dependencies & CocoaPods
+      - name: Install Platform Engines & CocoaPods
         run: |
           bun add @capacitor/core @capacitor/cli @capacitor/ios
           sudo gem install cocoapods || true
           
-      - name: Force Create Native Workspace
+      - name: Force Create iOS Project
         run: |
           npx cap add ios || true
           npx cap sync ios
