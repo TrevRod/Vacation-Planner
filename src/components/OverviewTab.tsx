@@ -16,10 +16,13 @@ import {
   Copy,
   Check,
   Globe,
-  Plus
+  Plus,
+  Share2
 } from 'lucide-react';
 import { Trip, ActiveTab } from '../types';
 import { formatCurrency } from '../utils/storage';
+import { DestinationWeatherCard } from './DestinationWeatherCard';
+import { triggerHaptic } from '../utils/native';
 
 interface OverviewTabProps {
   trip: Trip;
@@ -28,6 +31,7 @@ interface OverviewTabProps {
   onUpdateNotes: (notes: string) => void;
   tripsCount?: number;
   onNewTrip?: () => void;
+  onOpenExport?: () => void;
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -36,7 +40,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   onToggleTodo,
   onUpdateNotes,
   tripsCount,
-  onNewTrip
+  onNewTrip,
+  onOpenExport
 }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
@@ -269,7 +274,10 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 {priorityTodos.map((todo) => (
                   <div
                     key={todo.id}
-                    onClick={() => onToggleTodo(todo.id)}
+                    onClick={() => {
+                      triggerHaptic('success');
+                      onToggleTodo(todo.id);
+                    }}
                     className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 hover:bg-amber-50/40 hover:border-amber-200 transition cursor-pointer group"
                   >
                     <button 
@@ -304,8 +312,37 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </div>
 
-        {/* Right 1 Column: Emergency Contacts & Trip Notes */}
+        {/* Right 1 Column: Weather Forecast, Share Itinerary, Emergency Contacts & Trip Notes */}
         <div className="space-y-6">
+          {/* Destination Weather Forecast */}
+          <DestinationWeatherCard destination={trip.destination} />
+
+          {/* Quick Share / Export Itinerary Card */}
+          {onOpenExport && (
+            <div className="bg-linear-to-br from-amber-500/10 via-amber-500/5 to-slate-50 rounded-2xl border border-amber-200/80 p-5 shadow-xs flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <Share2 className="w-4 h-4 text-amber-700" />
+                  <h4 className="text-sm font-bold text-slate-900">Share Itinerary</h4>
+                </div>
+                <p className="text-xs text-slate-600">
+                  Export companion WhatsApp summary, print PDF, or backup trip data.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light');
+                  onOpenExport();
+                }}
+                className="shrink-0 px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Export</span>
+              </button>
+            </div>
+          )}
+
           {/* Emergency Contacts Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
             <div className="flex items-center gap-2 mb-3">

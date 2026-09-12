@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Trip, TodoItem, TodoCategory, PriorityLevel } from '../types';
 import { ESSENTIAL_TODO_ITEMS } from '../data/initialData';
+import { triggerHaptic } from '../utils/native';
 
 interface TodoListTabProps {
   trip: Trip;
@@ -49,6 +50,7 @@ export const TodoListTab: React.FC<TodoListTabProps> = ({ trip, onUpdateTrip }) 
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const handleToggle = (id: string) => {
+    triggerHaptic('success');
     const updated = trip.todos.map((t) =>
       t.id === id ? { ...t, completed: !t.completed } : t
     );

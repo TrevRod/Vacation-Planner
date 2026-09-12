@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Trip, PackingItem, PackingCategory, BagType } from '../types';
 import { ESSENTIAL_PACKING_ITEMS } from '../data/initialData';
+import { triggerHaptic } from '../utils/native';
 
 interface PackingListTabProps {
   trip: Trip;
@@ -68,6 +69,7 @@ export const PackingListTab: React.FC<PackingListTabProps> = ({ trip, onUpdateTr
   const personalPacked = trip.packingList.filter((p) => p.bagType === 'personal-item' && p.packed).length;
 
   const handleTogglePacked = (id: string) => {
+    triggerHaptic('light');
     const updated = trip.packingList.map((p) =>
       p.id === id ? { ...p, packed: !p.packed } : p
     );

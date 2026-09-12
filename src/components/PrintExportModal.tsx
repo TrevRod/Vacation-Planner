@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Printer, Download, Upload, FileText } from 'lucide-react';
+import { X, Copy, Check, Printer, Download, Upload, FileText, Share2 } from 'lucide-react';
 import { Trip } from '../types';
 import { formatCurrency, formatTripDates } from '../utils/storage';
+import { shareTripContent, triggerHaptic } from '../utils/native';
 
 interface PrintExportModalProps {
   isOpen: boolean;
@@ -76,12 +77,26 @@ export const PrintExportModal: React.FC<PrintExportModalProps> = ({
   const textSummary = generateTextSummary();
 
   const handleCopyText = () => {
+    triggerHaptic('light');
     navigator.clipboard.writeText(textSummary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleNativeShare = async () => {
+    triggerHaptic('medium');
+    const success = await shareTripContent({
+      title: trip ? `Vacation Plan: ${trip.title}` : 'Vacation Plan',
+      text: textSummary,
+    });
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const handlePrint = () => {
+    triggerHaptic('light');
     window.print();
   };
 
@@ -171,21 +186,32 @@ export const PrintExportModal: React.FC<PrintExportModalProps> = ({
               </pre>
             </div>
 
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-              >
-                <Printer className="w-4 h-4 text-slate-500" />
-                Print / Save PDF
-              </button>
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5 text-slate-500" />
+                  Print / PDF
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNativeShare}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 border border-amber-300 bg-amber-50/60 hover:bg-amber-100 text-amber-900 rounded-xl text-xs font-semibold transition cursor-pointer"
+                >
+                  <Share2 className="w-3.5 h-3.5 text-amber-700" />
+                  Share Sheet
+                </button>
+              </div>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3.5 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-xl font-medium cursor-pointer"
+                  className="px-3 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-xl font-medium cursor-pointer"
                 >
                   Close
                 </button>
@@ -193,17 +219,17 @@ export const PrintExportModal: React.FC<PrintExportModalProps> = ({
                   id="copy-text-summary-btn"
                   type="button"
                   onClick={handleCopyText}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-xs transition cursor-pointer"
                 >
                   {copied ? (
                     <>
                       <Check className="w-4 h-4" />
-                      Copied to Clipboard!
+                      Copied!
                     </>
                   ) : (
                     <>
                       <Copy className="w-4 h-4" />
-                      Copy Travel Summary
+                      Copy Summary
                     </>
                   )}
                 </button>

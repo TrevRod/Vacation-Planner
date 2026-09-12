@@ -32,6 +32,7 @@ import { AuthModal } from './components/AuthModal';
 import { UserAuthButton } from './components/UserAuthButton';
 import { TRIP_PRESETS, createTripFromPreset } from './data/tripPresets';
 import { Compass, Plus, Sparkles, Plane, Upload, LogIn, Cloud, ShieldCheck } from 'lucide-react';
+import { initNativeApp } from './utils/native';
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
@@ -47,6 +48,11 @@ export default function App() {
 
   // Track if local data has been migrated to the current user's cloud
   const migratedUserRef = useRef<string | null>(null);
+
+  // Initialize native mobile capabilities (splash screen, status bar, safe keyboards)
+  useEffect(() => {
+    initNativeApp();
+  }, []);
 
   // Real-time Firestore sync when authenticated
   useEffect(() => {
@@ -458,6 +464,7 @@ export default function App() {
             onUpdateNotes={handleUpdateNotes}
             tripsCount={trips.length}
             onNewTrip={handleNewTrip}
+            onOpenExport={() => setIsExportModalOpen(true)}
           />
         )}
 
