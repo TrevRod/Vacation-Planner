@@ -1,6 +1,6 @@
 {
-  "appId": "com.vacationplanner.app",
-  "appName": "Vacation Planner",
+  "appId": "com.yourname.myapp",
+  "appName": "MyAIStudioApp",
   "webDir": "dist",
   "server": {
     "url": "https://your-custom-domain.com",

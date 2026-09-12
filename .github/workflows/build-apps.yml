@@ -13,14 +13,21 @@ jobs:
         with:
           node-version: 20
           
-      - name: Install Platform Dependencies
+      - name: Setup Bun Environment
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          
+      - name: Install Dependencies & Build Web Assets
         run: |
-          npm install --legacy-peer-deps || npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          bun install
+          bun run build
+          
+      - name: Install Platform Dependencies
+        run: bun add @capacitor/core @capacitor/cli @capacitor/android
           
       - name: Build Standalone Workspace
         run: |
-          mkdir -p out && touch out/index.html
           npx cap add android || true
           npx cap sync android
           
@@ -43,17 +50,24 @@ jobs:
         with:
           node-version: 20
           
+      - name: Setup Bun Environment
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          
+      - name: Install Dependencies & Build Web Assets
+        run: |
+          bun install
+          bun run build
+          
       - name: Install Platform Dependencies & CocoaPods
         run: |
-          npm install --legacy-peer-deps || npm install
-          npm install @capacitor/core @capacitor/cli @capacitor/ios
+          bun add @capacitor/core @capacitor/cli @capacitor/ios
           sudo gem install cocoapods || true
           
       - name: Force Create Native Workspace
         run: |
-          mkdir -p out && touch out/index.html
-          # Force initialization to ensure the 'ios' folder and Podfile are created
-          npx cap add ios
+          npx cap add ios || true
           npx cap sync ios
           
       - name: Compile Native iOS Application
