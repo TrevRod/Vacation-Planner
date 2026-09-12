@@ -11,7 +11,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: 22 # Updated to match Capacitor CLI requirements
+          node-version: 22
           
       - name: Setup Bun Environment
         uses: oven-sh/setup-bun@v2
@@ -29,6 +29,8 @@ jobs:
           
       - name: Build Standalone Android Project
         run: |
+          # Programmatically initialize capacitor config if missing
+          npx cap init MyAIStudioApp com.yourname.myapp --web-dir=dist --skip-user-prompts || true
           npx cap add android || true
           npx cap sync android
           
@@ -49,7 +51,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: 22 # Updated to match Capacitor CLI requirements
+          node-version: 22
           
       - name: Setup Bun Environment
         uses: oven-sh/setup-bun@v2
@@ -68,7 +70,9 @@ jobs:
           
       - name: Force Create iOS Project
         run: |
-          npx cap add ios || true
+          # Explicitly initialize workspace details so add ios actually runs
+          npx cap init MyAIStudioApp com.yourname.myapp --web-dir=dist --skip-user-prompts || true
+          npx cap add ios
           npx cap sync ios
           
       - name: Compile Native iOS Application
